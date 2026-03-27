@@ -19,10 +19,10 @@ android {
     namespace = "eu.kanade.tachiyomi"
 
     defaultConfig {
-        applicationId = "com.amanoteam.kahon"
+        applicationId = "com.shazuxd.kahon"
 
         versionCode = 17
-        versionName = "0.19.6"
+        versionName = "0.19.6-self"
 
         buildConfigField("String", "COMMIT_COUNT", "\"${getCommitCount()}\"")
         buildConfigField("String", "COMMIT_SHA", "\"${getGitSha()}\"")
