@@ -1,9 +1,16 @@
 name: Java Ci
 
 on:
-  push:
-    branches:
-        - '**'
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: "Select build type"
+        required: true
+        default: "debug"
+        type: choice
+        options:
+          - debug
+          - release
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -12,21 +19,84 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@main
-      with:
-        submodules: true
-    - name: Set up JDK 24
-      uses: actions/setup-java@main
-      with:
-        java-version: 24
-        distribution: temurin
-    - name: Assemble APK
-      run: ./gradlew --no-daemon 'assembleRelease'
-    - name: Set MIHON_VERSION
-      run: echo "MIHON_VERSION=v$(grep --only-matching --perl-regexp 'versionName\s=\s\"\K([0-9\.]+)' './app/build.gradle.kts')+$(git rev-parse --short 'HEAD')" >> "${GITHUB_ENV}"
-    - name: Upload APK
-      uses: actions/upload-artifact@main
-      with:
-        name: "kahon_${{ env.MIHON_VERSION }}-github-release"
-        path: ./app/build/outputs/apk/release/app-release-unsigned.apk
+      #  Checkout repo
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      #  Setup Java
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 24
+          distribution: temurin
+
+      #  Setup Gradle cache
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      #  Build APK
+      - name: Build APK
+        run: |
+          if [ "${{ github.event.inputs.build_type }}" = "debug" ]; then
+            ./gradlew --no-daemon assembleDebug
+          else
+            ./gradlew --no-daemon assembleRelease
+          fi
+
+      #  Sign APK (works for both debug & release)
+      - name: Sign APK
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: app/build/outputs/apk/${{ github.event.inputs.build_type }}
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: "35.0.1"
+
+      #  Generate version name
+      - name: Generate version
+        id: version
+        run: |
+          VERSION=v$(grep --only-matching --perl-regexp 'versionName\s=\s\"\K([0-9\.]+)' './app/build.gradle.kts')-$(git rev-parse --short HEAD)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      #  Rename APK
+      - name: Rename APK
+        run: |
+          if [ "${{ github.event.inputs.build_type }}" = "debug" ]; then
+            FILE=$(find app/build/outputs/apk/debug -name "*signed.apk" | head -n 1)
+            mv "$FILE" kahon-${VERSION}-debug.apk
+          else
+            FILE=$(find app/build/outputs/apk/release -name "*signed.apk" | head -n 1)
+            mv "$FILE" kahon-${VERSION}.apk
+          fi
+
+      #  Upload artifact (always)
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: kahon-${{ github.event.inputs.build_type }}
+          path: kahon-*.apk
+
+      #  Create GitHub Release (only for release build)
+      - name: Create GitHub Release
+        if: github.event.inputs.build_type == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: kahon ${{ env.VERSION }}
+          body: |
+            Automated release build.
+
+            Build type: ${{ github.event.inputs.build_type }}
+
+            > If unsure, download the main APK.
+          files: kahon-*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
