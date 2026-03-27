@@ -19,10 +19,10 @@ android {
     namespace = "eu.kanade.tachiyomi"
 
     defaultConfig {
-        applicationId = "com.amanoteam.kahon"
+        applicationId = "com.MAReader.app"
 
-        versionCode = 17
-        versionName = "0.19.6"
+        versionCode = 1
+        versionName = "0.0.1"
 
         buildConfigField("String", "COMMIT_COUNT", "\"${getCommitCount()}\"")
         buildConfigField("String", "COMMIT_SHA", "\"${getGitSha()}\"")
