@@ -3,18 +3,16 @@
     android:viewportHeight="108"
     android:width="135dp"
     android:height="135dp">
-    <group
-        <path
+    <path
         android:pathData="M0 540l0 -540 540 0 540 0 0 540 0 540 -540 0 -540 0 0 -540zm675 435c205 -57 350 -286 316 -501 -47 -302 -374 -476 -647 -344 -163 79 -254 226 -254 410 0 311 281 519 585 435z"
         android:fillColor="#FFFFFF"
         android:strokeWidth="1"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
-        <path
+     <path
         android:pathData="M510 829l0 -52 -87 7c-152 13 -138 15 -136 -22 0 -18 3 -36 6 -38 3 -3 53 -8 111 -11l107 -6 -3 -41 -3 -41 -75 3c-41 1 -92 5 -112 8l-38 6 0 -40c0 -39 0 -39 46 -46 26 -3 78 -6 115 -6l69 0 0 -40 0 -40 -57 0c-73 0 -136 -28 -157 -69 -48 -92 21 -171 149 -171 97 0 155 43 155 115 0 14 2 25 5 25 16 0 75 -37 118 -72 46 -38 49 -39 62 -22 30 40 29 57 -4 85 -32 26 -111 69 -163 88 -25 9 -28 16 -28 55l0 44 68 6c146 14 142 13 142 58 0 37 -2 40 -22 34 -13 -3 -60 -9 -105 -12l-83 -7 0 40 0 40 46 7c26 3 64 6 85 6 58 0 69 8 69 47l0 35 -82 -7c-46 -3 -91 -9 -102 -12 -16 -4 -18 0 -15 46l4 51 -42 0 -43 0 0 -51zm10 -461c0 -45 -25 -68 -74 -68 -48 0 -86 22 -86 50 0 31 39 50 102 50l58 0 0 -32z"
         android:fillColor="#FFFFFF"
         android:strokeWidth="1"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
-    </group>
 </vector>
